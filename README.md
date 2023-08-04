@@ -29,4 +29,8 @@ Running
   --text "This is how you will run it"
 ```
 
-`echo "Note that it also works with stdin" | ./target/release/saybetter --key $(gcloud auth print-access-token) --project "saybetter"``
+```sh
+echo "Note that it also works with stdin" | ./target/release/saybetter --key $(gcloud auth print-access-token) --project "saybetter"
+```
+
+See full list of supported voices / languages [here](https://cloud.google.com/text-to-speech/docs/voices)
