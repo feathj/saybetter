@@ -32,10 +32,22 @@ struct TextToSpeechRequest {
     voice: VoiceSelectionParams,
     audio_config: AudioConfig,
 }
+
 #[derive(Deserialize)]
-struct SynthesizeResponse {
-    #[serde(rename = "audioContent")]
-    audio_content: String,
+struct ApiError {
+    message: String,
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum ApiResponse {
+    NormalResponse {
+        #[serde(rename = "audioContent")]
+        audio_content: String,
+    },
+    ErrorResponse {
+        error: ApiError,
+    },
 }
 
 pub async fn runtts(
@@ -43,7 +55,7 @@ pub async fn runtts(
     project_name: &str,
     language: &str,
     voice: &str,
-    text: &str,
+    message: &str,
 ) -> Result<PathBuf, Box<dyn std::error::Error>> {
     let client = Client::new();
     let mut headers = HeaderMap::new();
@@ -59,7 +71,7 @@ pub async fn runtts(
 
     let request_body = TextToSpeechRequest {
         input: InputText {
-            text: text.to_string(),
+            text: message.to_string(),
         },
         voice: VoiceSelectionParams {
             language_code: language.to_string(),
@@ -80,12 +92,18 @@ pub async fn runtts(
             .body(request_body_json)
             .send()
             .await?;
-        let sresponse = res.json::<SynthesizeResponse>().await?;
 
-        let binary_data = decode(sresponse.audio_content)?;
+        let api_response = res.json::<ApiResponse>().await?;
+        let audio_content = match api_response {
+            ApiResponse::NormalResponse { audio_content } => audio_content,
+            ApiResponse::ErrorResponse { error } => {
+                return Err(error.message.into());
+            }
+        };
+
+        let binary_data = decode(audio_content)?;
         temp_file.write_all(&binary_data)?;
     }
-    // TODO: handle error
 
     return Ok(temp_file.into_temp_path().keep()?);
 }

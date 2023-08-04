@@ -26,11 +26,11 @@ Running
 ./target/release/saybetter \
   --token $(gcloud auth print-access-token) \
   --project "saybetter" \
-  --text "This is how you will run it"
+  --message "This is how you will run it"
 ```
 
 ```sh
-echo "Note that it also works with stdin" | ./target/release/saybetter --key $(gcloud auth print-access-token) --project "saybetter"
+echo "Note that it also works with stdin" | ./target/release/saybetter --token $(gcloud auth print-access-token) --project "saybetter"
 ```
 
 See full list of supported voices / languages [here](https://cloud.google.com/text-to-speech/docs/voices)

@@ -23,26 +23,31 @@ struct Args {
     voice: String,
     // Text to be spoken, also accepts stdin
     #[arg(short, long, default_value = "")]
-    text: String,
+    message: String,
 }
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut args = Args::parse();
 
-    if args.text == "" {
+    if args.message == "" {
         let mut lines = Vec::new();
         let mut line = String::new();
         while std::io::stdin().read_line(&mut line)? != 0 {
             let line = std::mem::take(&mut line);
             lines.push(line);
         }
-        args.text = lines.join("");
+        args.message = lines.join("");
     }
 
-    let res = tts::runtts(&args.token, &args.project, &args.language, &args.voice, &args.text);
-    let path = res.await.unwrap();
-    // print!("{}", path.display());
+    let res = tts::runtts(
+        &args.token,
+        &args.project,
+        &args.language,
+        &args.voice,
+        &args.message,
+    );
+    let path = res.await?;
 
     // Play sound with rodio
     let (_stream, stream_handle) = OutputStream::try_default().unwrap();
