@@ -1,0 +1,15 @@
+[package]
+name = "saybetter"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[dependencies]
+base64 = "0.12"
+clap = { version = "4.3.19", features = ["derive"] }
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+rodio = "0.17.1"
+serde = { version = "1.0.180", features = ["derive"] }
+serde_json = "1.0.104"
+tempfile = "3.2"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
